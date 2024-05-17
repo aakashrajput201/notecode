@@ -48,14 +48,6 @@ const EditorLayout = () => {
     fetchData();
   }, [id]);
 
-  // const addDefaultData = async () => {
-  //   const docRef = await addDoc(collection(db, "languages"), {
-  //     name: "CSS",
-  //     language: "css",
-  //     value: "",
-  //   });
-  // };
-
   const onLanguageChange = (e) => {
     setLanguage(e.target.value);
     setCode(data.filter((item) => item.language === e.target.value)[0].value);
