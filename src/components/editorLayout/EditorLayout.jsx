@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import CodeEditor from "../codeEditor/CodeEditor";
 import { collection, addDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
+import { useParams } from "react-router-dom";
+import ShareIcon from "../../assets/Share.svg";
+import LinkIcon from "../../assets/link.svg";
 import "./EditorLayout.scss";
-import { useLocation, useParams } from "react-router-dom";
 
 const EditorLayout = () => {
   const [language, setLanguage] = useState();
@@ -13,39 +15,32 @@ const EditorLayout = () => {
   const [shareDisable, setShareDisable] = useState(false);
   const [data, setData] = useState([]);
   const { id } = useParams();
-  const location = useLocation();
 
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "languages"));
     const documents = querySnapshot.docs.map((doc) => doc.data());
-    console.log("querySnapshot", documents);
     setData(documents);
-
-    // querySnapshot.forEach((doc) => {
-    //   console.log(doc.id, " => ", doc.data());
-    // });
+    if (!id && documents) {
+      setLanguage(documents[0].language);
+      setCode(documents[0].value);
+    }
   };
-  console.log("language", language);
 
   const fetchDocs = async () => {
     const docRef = doc(db, "noteCode", id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
       const { theme, language, code } = docSnap.data();
-      console.log("theme", theme, language, code);
       setTheme(theme);
       setLanguage(language);
       setCode(code);
       setShareDisable(true);
     } else {
-      // docSnap.data() will be undefined in this case
       console.log("No such document!");
     }
-
-    // console.log("docSnap", docSnap);
   };
+
   useEffect(() => {
     if (id) {
       fetchDocs();
@@ -53,17 +48,17 @@ const EditorLayout = () => {
     fetchData();
   }, [id]);
 
+  // const addDefaultData = async () => {
+  //   const docRef = await addDoc(collection(db, "languages"), {
+  //     name: "CSS",
+  //     language: "css",
+  //     value: "",
+  //   });
+  // };
+
   const onLanguageChange = (e) => {
     setLanguage(e.target.value);
-    console.log(
-      "first",
-      data,
-      data.filter((item) => item.value === e.target.value)[0].defaultCode
-    );
-    setCode(
-      data.filter((item) => item.value === e.target.value)[0].defaultCode
-    );
-    console.log("e.target.value", e.target.value);
+    setCode(data.filter((item) => item.language === e.target.value)[0].value);
   };
 
   const onThemeChange = (e) => {
@@ -72,7 +67,6 @@ const EditorLayout = () => {
 
   const onCodeChange = (value) => {
     setCode(value);
-    console.log("e.target.value", value);
     setShareDisable(false);
   };
 
@@ -83,17 +77,17 @@ const EditorLayout = () => {
         language: language,
         code: code,
       });
-      console.log("Document written with ID: ", docRef.id);
       const sharedDocUrl = `${window.location.protocol}//${window.location.host}/${docRef.id}`;
       setNotesUrl(sharedDocUrl);
-      console.log(sharedDocUrl);
+      setShareDisable(true);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   };
-  const handleCopyClick = (event) => {
-    console.log("event.target.value", event.target.value);
-    const textToCopy = event.target.value;
+
+  const handleCopyClick = (url) => {
+    console.log("event.target.value", url);
+    const textToCopy = url;
     navigator.clipboard
       .writeText(textToCopy)
       .then(() => {
@@ -106,7 +100,14 @@ const EditorLayout = () => {
 
   return (
     <main>
-      <div className="editor-container">
+      <div
+        className="editor-container"
+        style={
+          theme === "light"
+            ? { backgroundColor: "#fff" }
+            : { backgroundColor: "#1e1e1e" }
+        }
+      >
         <CodeEditor
           language={language}
           theme={theme}
@@ -114,39 +115,61 @@ const EditorLayout = () => {
           onCodeChange={onCodeChange}
         />
         <div className="actions-container">
-          <select
-            value={language}
-            onChange={onLanguageChange}
-            name="language"
-            className="languages"
-          >
-            {data.map((item) => (
-              <option value={item.value}>{item.name}</option>
-            ))}
-            {/* <option value="html">HTML</option>
-            <option value="css">CSS</option>
-            <option value="javascript">JavaScript</option>
-            <option value="typescript">TypeScript</option> */}
-          </select>
+          <div className="first-actions">
+            <select
+              value={language}
+              onChange={onLanguageChange}
+              className="languages-btn"
+            >
+              {data.map((item) => (
+                <option value={item.language} className="option">
+                  {item.name}
+                </option>
+              ))}
+            </select>
 
-          <select value={theme} onChange={onThemeChange}>
-            <option value="light">Light</option>
-            <option value="vs-dark">Dark</option>
-          </select>
+            <select value={theme} onChange={onThemeChange} className="mode-btn">
+              <option value="light" className="option">
+                Light
+              </option>
+              <option value="vs-dark" className="option">
+                Dark
+              </option>
+            </select>
+          </div>
+          <div className="second-actions">
+            {notesUrl && (
+              <div
+                className="url-link"
+                onClick={() => handleCopyClick(notesUrl)}
+              >
+                <img
+                  className="url-link-icon"
+                  src={LinkIcon}
+                  alt="Share Icon"
+                  title="Copy Link"
+                  onClick={() => handleCopyClick(notesUrl)}
+                />
+                <p className="url-link-text">{`.../${notesUrl
+                  .split("/")
+                  [notesUrl.split("/").length - 1].slice(8)}`}</p>
+              </div>
+            )}
 
-          {notesUrl && (
-            <div>
-              <input type="text" value={notesUrl} onClick={handleCopyClick} />
-            </div>
-          )}
-
-          <button
-            disabled={shareDisable}
-            className="share button"
-            onClick={onShareClick}
-          >
-            Share
-          </button>
+            <button
+              disabled={shareDisable}
+              className="share-btn"
+              onClick={onShareClick}
+              style={
+                shareDisable
+                  ? { backgroundColor: "#CED6E1" }
+                  : { backgroundColor: "#406AFF" }
+              }
+            >
+              <img src={ShareIcon} alt="" />
+              Share
+            </button>
+          </div>
         </div>
       </div>
     </main>

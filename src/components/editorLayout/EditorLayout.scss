@@ -1,7 +1,82 @@
-.editor-container{
-    width: 80%;
-}
-.actions-container{
- display: flex;
- justify-content: space-between;
+main {
+  display: flex;
+  justify-content: center;
+  .editor-container {
+    width: 70%;
+    background-color: #fff;
+    padding-block: 15px;
+    border-radius: 2%;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
+      rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    .actions-container {
+      padding: 10px;
+      padding-inline: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      .first-actions {
+        display: flex;
+        gap: 8px;
+        .languages-btn,
+        .mode-btn {
+          width: 5.4rem;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          font-size: 0.625rem;
+          font-family: "Outfit", sans-serif;
+          font-weight: 600;
+          border: 1px solid #ccc;
+          border-radius: 20px;
+          padding: 10px;
+          color: #364153;
+          background-color: #ced6e1;
+          background-image: url("../../assets/downarrow.svg");
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+          cursor: pointer;
+        }
+      }
+      .second-actions {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        .url-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          .url-link-icon {
+            cursor: pointer;
+            &:hover {
+              background-color: #ced6e1;
+              border-radius: 10px;
+            }
+          }
+          .url-link-text {
+            font-size: 0.725rem;
+            font-weight: 600;
+            color: #7c818d;
+          }
+        }
+        .share-btn {
+          font-size: 1rem;
+          font-weight: 600;
+          font-family: "Outfit", sans-serif;
+          border-radius: 24px;
+          padding-inline: 1.5rem;
+          padding-block: 0.75rem;
+          border: none;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background-color: #406aff;
+          color: #fffffe;
+          cursor: pointer;
+        }
+      }
+      .option {
+        font-size: 1rem;
+      }
+    }
+  }
 }
