@@ -51,10 +51,12 @@ const EditorLayout = () => {
   const onLanguageChange = (e) => {
     setLanguage(e.target.value);
     setCode(data.filter((item) => item.language === e.target.value)[0].value);
+    setShareDisable(false);
   };
 
   const onThemeChange = (e) => {
     setTheme(e.target.value);
+    setShareDisable(false);
   };
 
   const onCodeChange = (value) => {
